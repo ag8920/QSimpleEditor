@@ -8,7 +8,7 @@ class Editor : public QTextEdit
     Q_OBJECT
 
 public:
-    Editor(QWidget *parent = 0);
+    Editor(QWidget *parent = nullptr);
 
     void newFile();
     bool save();

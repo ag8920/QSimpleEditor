@@ -43,11 +43,13 @@ OBJECTS_DIR=obj
 SOURCES += \
         main.cpp \
         mainwin.cpp \
-    editor.cpp
+        editor.cpp \
+    syntaxhiglighter.cpp
 
 HEADERS += \
         mainwin.h \
-    editor.h
+    editor.h \
+    syntaxhiglighter.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -56,3 +58,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 RESOURCES += \
     resource.qrc
+#LIBS += -lqscintilla2
+
+win32: LIBS += -lqscintilla2_qt5

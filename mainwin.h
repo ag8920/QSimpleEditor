@@ -4,6 +4,8 @@
 
 
 #include <QMainWindow>
+#include <Qsci/qsciscintilla.h>
+#include <Qsci/qscilexercpp.h>
 
 class QAction;
 class QActionGroup;
@@ -78,6 +80,8 @@ private:
     QAction *separatorAction;
     QAction *aboutAction;
     QAction *aboutQtAction;
+
+    QsciScintilla *txtedit;
 };
 
 #endif // MAINWIN_H

@@ -6,6 +6,8 @@
 #include <QTextEdit>
 #include <QApplication>
 
+#include "syntaxhiglighter.h"
+
 Editor::Editor(QWidget *parent)
     : QTextEdit(parent)
 {
@@ -22,9 +24,15 @@ Editor::Editor(QWidget *parent)
     setWindowIcon(QPixmap(":/images/document.png"));
     setWindowTitle("[*]");
     setAttribute(Qt::WA_DeleteOnClose);
+
+    new syntaxHiglighter(this->document());
+    QPalette pal=this->palette();
+//    pal.setColor(QPalette::Base,Qt::darkBlue);
+//    pal.setColor(QPalette::Text,Qt::yellow);
+    this->setPalette(pal);
 }
 
-void Editor::newFile()
+void Editor::newFile()R
 {
     static int documentNumber = 1;
 
@@ -65,7 +73,7 @@ Editor *Editor::open(QWidget *parent)
     QString fileName =
             QFileDialog::getOpenFileName(parent, tr("Open"), ".");
     if (fileName.isEmpty())
-        return 0;
+        return nullptr;
 
     return openFile(fileName, parent);
 }
@@ -78,7 +86,7 @@ Editor *Editor::openFile(const QString &fileName, QWidget *parent)
         return editor;
     } else {
         delete editor;
-        return 0;
+        return nullptr;
     }
 }
 

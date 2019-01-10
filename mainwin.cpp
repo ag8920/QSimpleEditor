@@ -16,6 +16,8 @@
 #include "mainwin.h"
 #include "editor.h"
 
+
+
 MainWindow::MainWindow()
 {
     mdiArea = new QMdiArea(this);
