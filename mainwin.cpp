@@ -14,7 +14,8 @@
 #include <QDockWidget>
 #include <QCalendarWidget>
 #include "mainwin.h"
-#include "editor.h"
+//#include "editor.h"
+#include "scedit.h"
 
 
 
@@ -99,19 +100,19 @@ void MainWindow::saveAs()
 void MainWindow::cut()
 {
     if (activeEditor())
-        activeEditor()->cut();
+        activeEditor()->textEdit->cut();
 }
 
 void MainWindow::copy()
 {
     if (activeEditor())
-        activeEditor()->copy();
+        activeEditor()->textEdit->copy();
 }
 
 void MainWindow::paste()
 {
     if (activeEditor())
-        activeEditor()->paste();
+        activeEditor()->textEdit->paste();
 }
 
 void MainWindow::about()
@@ -126,7 +127,7 @@ void MainWindow::updateActions()
 {
     bool hasEditor = (activeEditor() != nullptr);
     bool hasSelection = activeEditor()
-                        && activeEditor()->textCursor().hasSelection();
+                       ;// && activeEditor()->textCursor().hasSelection();
 
     saveAction->setEnabled(hasEditor);
     saveAsAction->setEnabled(hasEditor);

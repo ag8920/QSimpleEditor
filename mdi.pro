@@ -43,13 +43,15 @@ OBJECTS_DIR=obj
 SOURCES += \
         main.cpp \
         mainwin.cpp \
-        editor.cpp \
-    syntaxhiglighter.cpp
+#        editor.cpp \
+    syntaxhiglighter.cpp \
+    scedit.cpp
 
 HEADERS += \
         mainwin.h \
-    editor.h \
-    syntaxhiglighter.h
+#    editor.h \
+    syntaxhiglighter.h \
+    scedit.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

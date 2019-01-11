@@ -32,7 +32,7 @@ Editor::Editor(QWidget *parent)
     this->setPalette(pal);
 }
 
-void Editor::newFile()R
+void Editor::newFile()
 {
     static int documentNumber = 1;
 
