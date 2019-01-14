@@ -241,6 +241,23 @@ void MainWindow::createActions()
     connect(aboutQtAction, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 
     windowActionGroup = new QActionGroup(this);
+
+
+    alignLeftAction=new QAction(tr("align Left"),this);
+    alignLeftAction->setStatusTip(tr("Text alignment in left"));
+    alignLeftAction->setIcon(QIcon(":/icons/alignLeft.png"));
+
+    alignRightAction=new QAction(tr("align Right"),this);
+    alignRightAction->setStatusTip(tr("Text alignment in rigt"));
+    alignRightAction->setIcon(QIcon(":/icons/alignRight.png"));
+
+    alignCenterAction=new QAction(tr("align Center"),this);
+    alignCenterAction->setStatusTip(tr("Text alignment in center"));
+    alignCenterAction->setIcon(QIcon(":/icons/alignCenter"));
+
+    alignJustifyAction=new QAction(tr("align Justify"),this);
+    alignJustifyAction->setStatusTip(tr("Text alignment in justify"));
+    alignJustifyAction->setIcon(QIcon(":/icons/alignJustify"));
 }
 
 void MainWindow::createMenus()
@@ -257,6 +274,11 @@ void MainWindow::createMenus()
     editMenu->addAction(cutAction);
     editMenu->addAction(copyAction);
     editMenu->addAction(pasteAction);
+    editMenu->addSeparator();
+    editMenu->addAction(alignLeftAction);
+    editMenu->addAction(alignCenterAction);
+    editMenu->addAction(alignJustifyAction);
+    editMenu->addAction(alignRightAction);
 
     windowMenu = menuBar()->addMenu(tr("&Window"));
     windowMenu->addAction(closeAction);
@@ -289,6 +311,14 @@ void MainWindow::createToolBars()
     editToolBar->addAction(cutAction);
     editToolBar->addAction(copyAction);
     editToolBar->addAction(pasteAction);
+
+
+    alignmentToolbar=addToolBar(tr("Alignment"));
+    alignmentToolbar->addAction(alignLeftAction);
+    alignmentToolbar->addAction(alignCenterAction);
+    alignmentToolbar->addAction(alignJustifyAction);
+    alignmentToolbar->addAction(alignRightAction);
+
 }
 
 void MainWindow::createStatusBar()

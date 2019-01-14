@@ -29,10 +29,12 @@ CONFIG(debug, debug|release) {
 } else {
     DESTDIR = $$OUT_PWD/release
 }
+win32: {
 CONFIG(debug, debug|release) {
 QMAKE_POST_LINK = $$(QTDIR)/bin/windeployqt $$OUT_PWD/debug
 } else{
 QMAKE_POST_LINK = $$(QTDIR)/bin/windeployqt $$OUT_PWD/release
+}
 }
 
 MOC_DIR=moc

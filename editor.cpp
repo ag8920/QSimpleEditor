@@ -5,11 +5,12 @@
 #include <QAction>
 #include <QTextEdit>
 #include <QApplication>
+#include <QColorDialog>
 
 #include "syntaxhiglighter.h"
 
 Editor::Editor(QWidget *parent)
-    : QTextEdit(parent)
+    : QTextEdit(parent),colorDialog(0)
 {
     action = new QAction(this);
     action->setCheckable(true);
@@ -27,12 +28,12 @@ Editor::Editor(QWidget *parent)
 
     new syntaxHiglighter(this->document());
     QPalette pal=this->palette();
-//    pal.setColor(QPalette::Base,Qt::darkBlue);
-//    pal.setColor(QPalette::Text,Qt::yellow);
+    //    pal.setColor(QPalette::Base,Qt::darkBlue);
+    //    pal.setColor(QPalette::Text,Qt::yellow);
     this->setPalette(pal);
 }
 
-void Editor::newFile()R
+void Editor::newFile()
 {
     static int documentNumber = 1;
 
@@ -104,15 +105,72 @@ void Editor::documentWasModified()
     setWindowModified(true);
 }
 
+void Editor::setBold(bool on)
+{
+    this->setFontWeight(on?QFont::Bold : QFont::Normal);
+}
+
+void Editor::setColor()
+{
+    if(!colorDialog){
+        colorDialog = new QColorDialog(this);
+        connect(colorDialog,SIGNAL(colorSelected(const QColor&)),
+                this,SLOT(updateColor(const QColor&)));
+    }
+    colorDialog->setCurrentColor(this->textColor());
+    colorDialog->open();
+}
+
+void Editor::updateColor(const QColor &color)
+{
+    this->setTextColor(color);
+//    updateColorSwatchSignal(); //todo сделать сигналом
+}
+
+//void Editor::updateColorSwatch()//todo перенести в mainwin.cpp|hpp
+//{
+
+//}
+
+void Editor::setFontPointSize(double points)
+{
+    this->setFontPointSize(static_cast<qreal>(points));
+}
+
+void Editor::setFontFamily(const QFont &font)
+{
+    this->setFontFamily(font.family());
+}
+
+void Editor::alignLeft(){this->setAlignment(Qt::AlignLeft);}
+
+void Editor::alignRight(){this->setAlignment(Qt::AlignRight);}
+
+void Editor::alignCenter(){this->setAlignment(Qt::AlignCenter);}
+
+void Editor::alignJustify(){this->setAlignment(Qt::AlignJustify);}
+
+
+//перенести в mainwin
+//void Editor::cursorPositionChanged()
+//{
+//    QTextCursor cursor=this->textCursor();
+//    QTextBlockFormat format=cursor.blockFormat();
+//    switch (format.alignment()) {
+//        case Qt::AlignLeft:
+//        alignLeft
+//    }
+//}
+
 bool Editor::okToContinue()
 {
     if (document()->isModified()) {
         int r = QMessageBox::warning(this, tr("Simple Editor"),
-                        tr("File %1 has been modified.\n"
-                           "Do you want to save your changes?")
-                        .arg(strippedName(curFile)),
-                        QMessageBox::Yes | QMessageBox::No
-                        | QMessageBox::Cancel);
+                                     tr("File %1 has been modified.\n"
+                                        "Do you want to save your changes?")
+                                     .arg(strippedName(curFile)),
+                                     QMessageBox::Yes | QMessageBox::No
+                                     | QMessageBox::Cancel);
         if (r == QMessageBox::Yes) {
             return save();
         } else if (r == QMessageBox::Cancel) {
@@ -182,6 +240,8 @@ QString Editor::strippedName(const QString &fullFileName)
 {
     return QFileInfo(fullFileName).fileName();
 }
+
+
 
 
 

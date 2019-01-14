@@ -4,8 +4,8 @@
 
 
 #include <QMainWindow>
-#include <Qsci/qsciscintilla.h>
-#include <Qsci/qscilexercpp.h>
+//#include <Qsci/qsciscintilla.h>
+//#include <Qsci/qscilexercpp.h>
 
 class QAction;
 class QActionGroup;
@@ -81,7 +81,19 @@ private:
     QAction *aboutAction;
     QAction *aboutQtAction;
 
-    QsciScintilla *txtedit;
+    QAction *boldAction;
+    QAction *italicAction;
+    QToolBar *fontToolbar;
+    QAction *colorAction;
+
+    QAction *alignLeftAction;
+    QAction *alignRightAction;
+    QAction *alignCenterAction;
+    QAction *alignJustifyAction;
+    QToolBar *alignmentToolbar;
+
+
+//    QsciScintilla *txtedit;
 };
 
 #endif // MAINWIN_H

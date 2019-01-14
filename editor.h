@@ -3,6 +3,8 @@
 
 #include <QTextEdit>
 
+class QColorDialog;
+
 class Editor : public QTextEdit
 {
     Q_OBJECT
@@ -25,6 +27,20 @@ protected:
 
 private slots:
     void documentWasModified();
+    void setBold(bool on);
+    void setColor();
+    void updateColor(const QColor &color);
+    void setFontPointSize(double points);
+    void setFontFamily(const QFont &font);
+//    void currentCharFormatChanged(const QTextCharFormat &format);
+
+    void alignLeft();
+    void alignRight();
+    void alignCenter();
+    void alignJustify();
+
+//    void cursorPositionChanged(); //todo перенсти в mainwin.cpp|hpp
+
 
 private:
     bool okToContinue();
@@ -34,9 +50,14 @@ private:
     bool writeFile(const QString &fileName);
     QString strippedName(const QString &fullFileName);
 
+//    void updateColorSwatch(); //todo перенсти в mainwin.cpp|hpp
+
     QString curFile;
     bool isUntitled;
     QAction *action;
+
+
+    QColorDialog *colorDialog;
 };
 
 #endif
