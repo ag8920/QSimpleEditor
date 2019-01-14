@@ -25,7 +25,7 @@ public:
 protected:
     void closeEvent(QCloseEvent *event);
 
-private slots:
+public slots:
     void documentWasModified();
     void setBold(bool on);
     void setColor();

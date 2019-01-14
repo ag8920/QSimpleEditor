@@ -31,6 +31,7 @@ MainWindow::MainWindow()
     createMenus();
     createToolBars();
     createStatusBar();
+    createConnections();
     QCalendarWidget *e=new QCalendarWidget;
     createDockWin(e,"Calendar",Qt::RightDockWidgetArea);
 
@@ -52,6 +53,43 @@ void MainWindow::loadFiles()
     }
     mdiArea->activateNextSubWindow();
 }
+
+void MainWindow::setLeftAlign()
+{
+    if(activeEditor())
+        activeEditor()->alignLeft();
+}
+
+void MainWindow::setRightAlign()
+{
+    if(activeEditor())
+        activeEditor()->alignRight();
+}
+
+void MainWindow::setCenterAlign()
+{
+    if(activeEditor())
+        activeEditor()->alignCenter();
+}
+
+void MainWindow::setJustifyAlign()
+{
+    if(activeEditor())
+        activeEditor()->alignJustify();
+}
+
+void MainWindow::setBoldStyle()
+{
+    if(activeEditor()){
+        if(activeEditor()->fontWeight()<=CENTER_BOLD){
+            activeEditor()->setBold(true);
+        }
+        else if(activeEditor()->fontWeight()>=CENTER_BOLD) {
+            activeEditor()->setBold(false);
+        }
+    }
+}
+
 
 void MainWindow::newFile()
 {
@@ -117,16 +155,16 @@ void MainWindow::paste()
 void MainWindow::about()
 {
     QMessageBox::about(this, tr("About Simple Editor"),
-            tr("<h2>Editor 0.1</h2>"
-               "<p>Copyright &copy; 2018"
-               "<p>Simple Editor is a small application that demonstrates "));
+                       tr("<h2>Editor 0.1</h2>"
+                          "<p>Copyright &copy; 2018"
+                          "<p>Simple Editor is a small application that demonstrates "));
 }
 
 void MainWindow::updateActions()
 {
     bool hasEditor = (activeEditor() != nullptr);
     bool hasSelection = activeEditor()
-                        && activeEditor()->textCursor().hasSelection();
+            && activeEditor()->textCursor().hasSelection();
 
     saveAction->setEnabled(hasEditor);
     saveAsAction->setEnabled(hasEditor);
@@ -258,6 +296,10 @@ void MainWindow::createActions()
     alignJustifyAction=new QAction(tr("align Justify"),this);
     alignJustifyAction->setStatusTip(tr("Text alignment in justify"));
     alignJustifyAction->setIcon(QIcon(":/icons/alignJustify"));
+
+    boldAction=new QAction(tr("bold style"),this);
+    boldAction->setStatusTip(tr("to establish a bold print"));
+    boldAction->setIcon(QIcon(":/icons/bold.png"));
 }
 
 void MainWindow::createMenus()
@@ -274,6 +316,8 @@ void MainWindow::createMenus()
     editMenu->addAction(cutAction);
     editMenu->addAction(copyAction);
     editMenu->addAction(pasteAction);
+    editMenu->addSeparator();
+    editMenu->addAction(boldAction);
     editMenu->addSeparator();
     editMenu->addAction(alignLeftAction);
     editMenu->addAction(alignCenterAction);
@@ -312,6 +356,8 @@ void MainWindow::createToolBars()
     editToolBar->addAction(copyAction);
     editToolBar->addAction(pasteAction);
 
+    fontToolbar=addToolBar(tr("Font"));
+    fontToolbar->addAction(boldAction);
 
     alignmentToolbar=addToolBar(tr("Alignment"));
     alignmentToolbar->addAction(alignLeftAction);
@@ -327,12 +373,27 @@ void MainWindow::createStatusBar()
     statusBar()->addWidget(readyLabel, 1);
 }
 
+void MainWindow::createConnections()
+{
+    connect(alignRightAction,&QAction::triggered,
+            this,&MainWindow::setRightAlign);
+    connect(alignLeftAction,&QAction::triggered,
+            this,&MainWindow::setLeftAlign);
+    connect(alignCenterAction,&QAction::triggered,
+            this,&MainWindow::setCenterAlign);
+    connect(alignJustifyAction,&QAction::triggered,
+            this,&MainWindow::setJustifyAlign);
+    connect(boldAction,&QAction::triggered,
+            this,&MainWindow::setBoldStyle);
+}
+
 void MainWindow::addEditor(Editor *editor)
 {
     connect(editor, SIGNAL(copyAvailable(bool)),
             cutAction, SLOT(setEnabled(bool)));
     connect(editor, SIGNAL(copyAvailable(bool)),
             copyAction, SLOT(setEnabled(bool)));
+
 
     QMdiSubWindow *subWindow = mdiArea->addSubWindow(editor);
     windowMenu->addAction(editor->windowMenuAction());
@@ -353,11 +414,11 @@ void MainWindow::createDockWin(QWidget *w,const QString nameWindow,Qt::DockWidge
     QDockWidget *dock=new QDockWidget(nameWindow,this);
     //dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
-//    QWidget *e=new Qwidget(dock);
+    //    QWidget *e=new Qwidget(dock);
 
     dock->setWidget(w);
     dock->hide();
-//    dock->setFeatures(QDockWidget::NoDockWidgetFeatures);//прикрепленный виджет не может быть закрыт, перемещен
+    //    dock->setFeatures(QDockWidget::NoDockWidgetFeatures);//прикрепленный виджет не может быть закрыт, перемещен
     addDockWidget(area,dock);
 
 

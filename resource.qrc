@@ -14,5 +14,6 @@
         <file>icons/alignJustify.png</file>
         <file>icons/alignLeft.png</file>
         <file>icons/alignRight.png</file>
+        <file>icons/bold.png</file>
     </qresource>
 </RCC>

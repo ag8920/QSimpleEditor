@@ -7,6 +7,8 @@
 //#include <Qsci/qsciscintilla.h>
 //#include <Qsci/qscilexercpp.h>
 
+#define CENTER_BOLD 50
+
 class QAction;
 class QActionGroup;
 class QLabel;
@@ -40,11 +42,20 @@ private slots:
     void updateActions();
     void loadFiles();
 
+    void setLeftAlign();
+    void setRightAlign();
+    void setCenterAlign();
+    void setJustifyAlign();
+
+    void setBoldStyle();
+
+
 private:
     void createActions();
     void createMenus();
     void createToolBars();
     void createStatusBar();
+    void createConnections();
     void addEditor(Editor *editor);
     Editor *activeEditor();
 
@@ -81,6 +92,7 @@ private:
     QAction *aboutAction;
     QAction *aboutQtAction;
 
+    QToolBar *fonToolBar;
     QAction *boldAction;
     QAction *italicAction;
     QToolBar *fontToolbar;
@@ -91,6 +103,8 @@ private:
     QAction *alignCenterAction;
     QAction *alignJustifyAction;
     QToolBar *alignmentToolbar;
+
+
 
 
 //    QsciScintilla *txtedit;
