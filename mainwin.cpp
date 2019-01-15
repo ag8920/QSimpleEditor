@@ -13,6 +13,7 @@
 #include <QLabel>
 #include <QDockWidget>
 #include <QCalendarWidget>
+#include <QFontComboBox>
 #include "mainwin.h"
 #include "editor.h"
 
@@ -88,6 +89,13 @@ void MainWindow::setBoldStyle()
             activeEditor()->setBold(false);
         }
     }
+}
+
+void MainWindow::setFont(const QFont &font)
+{
+//    if(activeEditor()){
+//        activeEditor()->setFontFamily(font);
+//    }
 }
 
 
@@ -300,6 +308,7 @@ void MainWindow::createActions()
     boldAction=new QAction(tr("bold style"),this);
     boldAction->setStatusTip(tr("to establish a bold print"));
     boldAction->setIcon(QIcon(":/icons/bold.png"));
+    boldAction->setShortcut(tr("Ctrl+B"));
 }
 
 void MainWindow::createMenus()
@@ -346,6 +355,7 @@ void MainWindow::createMenus()
 
 void MainWindow::createToolBars()
 {
+    QFont font("Times New Roman",11);
     fileToolBar = addToolBar(tr("File"));
     fileToolBar->addAction(newAction);
     fileToolBar->addAction(openAction);
@@ -358,6 +368,12 @@ void MainWindow::createToolBars()
 
     fontToolbar=addToolBar(tr("Font"));
     fontToolbar->addAction(boldAction);
+
+    fontToolbar->addWidget(new QLabel("Font:"));
+    fontComboBox=new QFontComboBox;
+    fontComboBox->setCurrentFont(font);
+    fontToolbar->addWidget(fontComboBox);
+
 
     alignmentToolbar=addToolBar(tr("Alignment"));
     alignmentToolbar->addAction(alignLeftAction);
@@ -385,6 +401,8 @@ void MainWindow::createConnections()
             this,&MainWindow::setJustifyAlign);
     connect(boldAction,&QAction::triggered,
             this,&MainWindow::setBoldStyle);
+    connect(fontComboBox,&QFontComboBox::currentFontChanged,
+            this,&MainWindow::setFont);
 }
 
 void MainWindow::addEditor(Editor *editor)

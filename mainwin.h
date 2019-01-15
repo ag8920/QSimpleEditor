@@ -16,6 +16,7 @@ class QMdiArea;
 class QMenu;
 class QToolBar;
 class Editor;
+class QFontComboBox;
 
 class MainWindow : public QMainWindow
 {
@@ -48,6 +49,7 @@ private slots:
     void setJustifyAlign();
 
     void setBoldStyle();
+    void setFont(const QFont &font);
 
 
 private:
@@ -104,6 +106,7 @@ private:
     QAction *alignJustifyAction;
     QToolBar *alignmentToolbar;
 
+    QFontComboBox *fontComboBox;
 
 
 

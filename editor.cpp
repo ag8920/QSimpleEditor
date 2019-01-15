@@ -142,6 +142,7 @@ void Editor::setFontFamily(const QFont &font)
     this->setFontFamily(font.family());
 }
 
+
 void Editor::alignLeft(){this->setAlignment(Qt::AlignLeft);}
 
 void Editor::alignRight(){this->setAlignment(Qt::AlignRight);}
