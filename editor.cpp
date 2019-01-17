@@ -132,12 +132,12 @@ void Editor::updateColor(const QColor &color)
 
 //}
 
-void Editor::setFontPointSize(double points)
+void Editor::setFontSize(double points)
 {
     this->setFontPointSize(static_cast<qreal>(points));
 }
 
-void Editor::setFontFamily(const QFont &font)
+void Editor::setFont(const QFont &font)
 {
     this->setFontFamily(font.family());
 }

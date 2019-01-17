@@ -14,6 +14,9 @@
 #include <QDockWidget>
 #include <QCalendarWidget>
 #include <QFontComboBox>
+#include <QDoubleSpinBox>
+#include <QTextCharFormat>
+
 #include "mainwin.h"
 #include "editor.h"
 
@@ -93,9 +96,47 @@ void MainWindow::setBoldStyle()
 
 void MainWindow::setFont(const QFont &font)
 {
-//    if(activeEditor()){
-//        activeEditor()->setFontFamily(font);
-//    }
+    if(activeEditor()){
+        activeEditor()->setFont(font);
+    }
+}
+
+void MainWindow::setSizeFont(double size)
+{
+    if(activeEditor()){
+        activeEditor()->setFontSize(size);
+    }
+}
+
+void MainWindow::currentCharFormatChanged(const QTextCharFormat &format)//todo не работает
+{
+    fontComboBox->setCurrentFont(format.font());
+    fontSizeSpinBox->setValue(format.fontPointSize());
+
+}
+
+void MainWindow::cursorPositionChanged()
+{
+    if(activeEditor()){
+        QTextCursor cursor=activeEditor()->textCursor();
+        QTextBlockFormat format=cursor.blockFormat();
+        switch (format.alignment()) {
+        case Qt::AlignLeft:
+            alignLeftAction->setChecked(true);
+            break;
+        case Qt::AlignRight:
+            alignRightAction->setChecked(true);
+            break;
+        case Qt::AlignCenter:
+            alignCenterAction->setChecked(true);
+            break;
+        case Qt::AlignJustify:
+            alignJustifyAction->setChecked(true);
+            break;
+        default:
+            break;
+        }
+    }
 }
 
 
@@ -355,7 +396,7 @@ void MainWindow::createMenus()
 
 void MainWindow::createToolBars()
 {
-    QFont font("Times New Roman",11);
+    QFont font("Times New Roman",14);
     fileToolBar = addToolBar(tr("File"));
     fileToolBar->addAction(newAction);
     fileToolBar->addAction(openAction);
@@ -373,6 +414,13 @@ void MainWindow::createToolBars()
     fontComboBox=new QFontComboBox;
     fontComboBox->setCurrentFont(font);
     fontToolbar->addWidget(fontComboBox);
+    fontSizeSpinBox=new QDoubleSpinBox;
+    fontSizeSpinBox->setDecimals(0);
+    fontSizeSpinBox->setAlignment(Qt::AlignRight|Qt::AlignCenter);
+    fontSizeSpinBox->setRange(6,280);
+    fontSizeSpinBox->setValue(font.pointSize());
+    fontToolbar->addWidget(new QLabel("Size:"));
+    fontToolbar->addWidget(fontSizeSpinBox);
 
 
     alignmentToolbar=addToolBar(tr("Alignment"));
@@ -403,6 +451,8 @@ void MainWindow::createConnections()
             this,&MainWindow::setBoldStyle);
     connect(fontComboBox,&QFontComboBox::currentFontChanged,
             this,&MainWindow::setFont);
+    connect(fontSizeSpinBox,SIGNAL(valueChanged(double)),
+            this,SLOT(setSizeFont(double)));
 }
 
 void MainWindow::addEditor(Editor *editor)
@@ -412,7 +462,13 @@ void MainWindow::addEditor(Editor *editor)
     connect(editor, SIGNAL(copyAvailable(bool)),
             copyAction, SLOT(setEnabled(bool)));
 
+    connect(editor,SIGNAL(cursorPositionChanged()),
+            this, SLOT(cursorPositionChanged()));
 
+//    connect(editor, SIGNAL(currentCharFormatChanged(
+//                                const QTextCharFormat&)),
+//               this, SLOT(currentCharFormatChanged(
+//                          const QTextCharFormat&)));
     QMdiSubWindow *subWindow = mdiArea->addSubWindow(editor);
     windowMenu->addAction(editor->windowMenuAction());
     windowActionGroup->addAction(editor->windowMenuAction());
@@ -422,8 +478,9 @@ void MainWindow::addEditor(Editor *editor)
 Editor *MainWindow::activeEditor()
 {
     QMdiSubWindow *subWindow = mdiArea->activeSubWindow();
-    if (subWindow)
+    if (subWindow){
         return qobject_cast<Editor *>(subWindow->widget());
+    }
     return nullptr;
 }
 

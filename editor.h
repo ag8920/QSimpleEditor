@@ -30,8 +30,8 @@ public slots:
     void setBold(bool on);
     void setColor();
     void updateColor(const QColor &color);
-    void setFontPointSize(double points);
-    void setFontFamily(const QFont &font);
+    void setFontSize(double points);
+    void setFont(const QFont &font);
 //    void currentCharFormatChanged(const QTextCharFormat &format);
 
     void alignLeft();

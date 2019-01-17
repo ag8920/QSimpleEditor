@@ -17,6 +17,8 @@ class QMenu;
 class QToolBar;
 class Editor;
 class QFontComboBox;
+class QDoubleSpinBox;
+class QTextCharFormat;
 
 class MainWindow : public QMainWindow
 {
@@ -50,8 +52,10 @@ private slots:
 
     void setBoldStyle();
     void setFont(const QFont &font);
+    void setSizeFont(double size);
 
-
+    void currentCharFormatChanged(const QTextCharFormat &format);
+    void cursorPositionChanged();
 private:
     void createActions();
     void createMenus();
@@ -107,6 +111,7 @@ private:
     QToolBar *alignmentToolbar;
 
     QFontComboBox *fontComboBox;
+    QDoubleSpinBox *fontSizeSpinBox;
 
 
 
