@@ -6,8 +6,21 @@
 #include <QTextEdit>
 #include <QApplication>
 #include <QColorDialog>
+#include <QCompleter>
+#include <QStringListModel>
+#include <QShortcut>
+#include <QAbstractItemView>
+#include <QScrollBar>
+#include <QPlainTextEdit>
 
 #include "syntaxhiglighter.h"
+
+inline
+bool caseInsensitiveLessThan(const QString &a, const QString &b)
+{
+    return a.compare(b, Qt::CaseInsensitive) < 0;
+}
+
 
 Editor::Editor(QWidget *parent)
     : QTextEdit(parent),colorDialog(0)
@@ -31,6 +44,19 @@ Editor::Editor(QWidget *parent)
     //    pal.setColor(QPalette::Base,Qt::darkBlue);
     //    pal.setColor(QPalette::Text,Qt::yellow);
     this->setPalette(pal);
+
+    //автозавершение текста
+    model=new QStringListModel(this);
+    completer=new QCompleter(this);
+    completer->setWidget(this);
+    completer->setCompletionMode(QCompleter::PopupCompletion); //раскрывающийся список
+    completer->setModel(model);
+    completer->setModelSorting(QCompleter::CaseSensitivelySortedModel);
+    completer->setCaseSensitivity(Qt::CaseInsensitive);
+    completer->setWrapAround(true);
+
+    createConnections();
+
 }
 
 void Editor::newFile()
@@ -104,7 +130,9 @@ void Editor::documentWasModified()
 {
     setWindowModified(true);
 }
-
+//------------------------------------------------------------
+//форматирование текста
+//------------------------------------------------------------
 void Editor::setBold(bool on)
 {
     this->setFontWeight(on?QFont::Bold : QFont::Normal);
@@ -124,7 +152,7 @@ void Editor::setColor()
 void Editor::updateColor(const QColor &color)
 {
     this->setTextColor(color);
-//    updateColorSwatchSignal(); //todo сделать сигналом
+    //    updateColorSwatchSignal(); //todo сделать сигналом
 }
 
 //void Editor::updateColorSwatch()//todo перенести в mainwin.cpp|hpp
@@ -141,8 +169,9 @@ void Editor::setFont(const QFont &font)
 {
     this->setFontFamily(font.family());
 }
-
-
+//------------------------------------------------------------
+//выравнивание текста
+//------------------------------------------------------------
 void Editor::alignLeft(){this->setAlignment(Qt::AlignLeft);}
 
 void Editor::alignRight(){this->setAlignment(Qt::AlignRight);}
@@ -150,6 +179,123 @@ void Editor::alignRight(){this->setAlignment(Qt::AlignRight);}
 void Editor::alignCenter(){this->setAlignment(Qt::AlignCenter);}
 
 void Editor::alignJustify(){this->setAlignment(Qt::AlignJustify);}
+//------------------------------------------------------------
+//автозавершение текста
+//------------------------------------------------------------
+void Editor::insertCompletion(const QString &completion,
+                              bool singleWord)
+{
+    QTextCursor cursor=textCursor();
+    int numberofCharsToComplete=completion.length() -
+            completer->completionPrefix().length();
+    int insertionPosition=cursor.position();
+    cursor.insertText(completion.right(numberofCharsToComplete));
+    if(singleWord){
+        cursor.setPosition(insertionPosition);
+        cursor.movePosition(QTextCursor::EndOfWord,
+                            QTextCursor::KeepAnchor);
+        completeAndSelected=true;
+    }
+    setTextCursor(cursor);
+}
+
+void Editor::performCompletion()
+{
+    QTextCursor cursor=textCursor();
+    cursor.select(QTextCursor::WordUnderCursor);
+    const QString completionPrefix=cursor.selectedText();
+    if(!completionPrefix.isEmpty() &&
+            completionPrefix.at(completionPrefix.length()-1).isLetter())
+        performCompletion(completionPrefix);
+}
+void Editor::performCompletion(const QString &completionPrefix)
+{
+    populateModel(completionPrefix);
+    if(completionPrefix!=completer->completionPrefix()){
+        completer->setCompletionPrefix(completionPrefix);
+
+        completer->popup()->
+                setCurrentIndex(completer->completionModel()->index(0,0));
+    }
+    if(completer->completionCount()==1)
+        insertCompletion(completer->currentCompletion(),true);
+    else {
+        QRect rect=cursorRect();
+        rect.setWidth(completer->popup()->sizeHintForColumn(0)+
+                      completer->popup()->verticalScrollBar()->
+                      sizeHint().width());
+        completer->complete(rect);
+    }
+}
+
+//метод динамически заполняет модель механизма автозавершения
+//словами из текущего текста
+void Editor::populateModel(const QString &completionPrefix)
+{
+    QStringList strings=toPlainText().split(QRegExp("\\W+"));
+    strings.removeAll(completionPrefix);
+    strings.removeDuplicates();
+    qSort(strings.begin(),strings.end(),caseInsensitiveLessThan);
+    model->setStringList(strings);
+}
+
+void Editor::mousePressEvent(QMouseEvent *event)
+{
+    if(completeAndSelected){
+        completeAndSelected=false;
+        QTextCursor cursor=textCursor();
+        cursor.removeSelectedText();
+        setTextCursor(cursor);
+    }
+    //    QPlainTextEdit::mousePressEvent(event); todo
+    QTextEdit::mousePressEvent(event);
+}
+
+void Editor::keyPressEvent(QKeyEvent *event)
+{
+    if (completeAndSelected && handledCompletedAndSelected(event) )
+        return;
+    completeAndSelected=false;
+    if(completer->popup()->isVisible()){
+        switch (event->key()) {
+        case Qt::Key_Up:      // Fallthrough
+        case Qt::Key_Down:    // Fallthrough
+        case Qt::Key_Enter:   // Fallthrough
+        case Qt::Key_Return:  // Fallthrough
+        case Qt::Key_Escape: event->ignore(); return;
+        default: completer->popup()->hide(); break;
+        }
+    }
+    //    QPlainTextEdit::keyPressEvent(event); todo
+    QTextEdit::keyPressEvent(event);
+}
+
+bool Editor::handledCompletedAndSelected(QKeyEvent *event)
+{
+    completeAndSelected=false;
+    QTextCursor cursor=textCursor();
+    switch (event->key()) {
+    case Qt::Key_Enter:  // Fallthrough
+    case Qt::Key_Return: cursor.clearSelection(); break;
+    case Qt::Key_Escape: cursor.removeSelectedText(); break;
+    default: return false;
+    }
+    setTextCursor(cursor);
+    event->accept();
+    return true;
+}
+//------------------------------------------------------------
+
+
+
+
+void Editor::createConnections()
+{
+    connect(completer, SIGNAL(activated(const QString&)),
+            this, SLOT(insertCompletion(const QString&)));
+    (void) new QShortcut(QKeySequence(tr("Ctrl+M", "Complete")),
+                         this,SLOT(performCompletion()));
+}
 
 
 //перенести в mainwin
@@ -241,6 +387,7 @@ QString Editor::strippedName(const QString &fullFileName)
 {
     return QFileInfo(fullFileName).fileName();
 }
+
 
 
 

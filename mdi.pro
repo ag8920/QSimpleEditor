@@ -63,3 +63,6 @@ RESOURCES += \
 #LIBS += -lqscintilla2
 
 win32: LIBS += -lqscintilla2_qt5
+
+DISTFILES += \
+    TODO_list

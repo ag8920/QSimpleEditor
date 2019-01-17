@@ -4,6 +4,8 @@
 #include <QTextEdit>
 
 class QColorDialog;
+class QCompleter;
+class QStringListModel;
 
 class Editor : public QTextEdit
 {
@@ -24,7 +26,8 @@ public:
 
 protected:
     void closeEvent(QCloseEvent *event);
-
+    void mousePressEvent(QMouseEvent *event);
+    void keyPressEvent(QKeyEvent *event);
 public slots:
     void documentWasModified();
     void setBold(bool on);
@@ -40,9 +43,13 @@ public slots:
     void alignJustify();
 
 //    void cursorPositionChanged(); //todo перенсти в mainwin.cpp|hpp
-
+private slots:
+    void insertCompletion(const QString &completion,
+                          bool singleWord=false);
+    void performCompletion();
 
 private:
+    void createConnections();
     bool okToContinue();
     bool saveFile(const QString &fileName);
     void setCurrentFile(const QString &fileName);
@@ -50,14 +57,21 @@ private:
     bool writeFile(const QString &fileName);
     QString strippedName(const QString &fullFileName);
 
+    void performCompletion(const QString &completionPrefix);
+    void populateModel(const QString &completionPrefix);
+    bool handledCompletedAndSelected(QKeyEvent *event);
 //    void updateColorSwatch(); //todo перенсти в mainwin.cpp|hpp
 
     QString curFile;
     bool isUntitled;
     QAction *action;
 
+    QCompleter *completer;
+    QStringListModel *model;
 
     QColorDialog *colorDialog;
+
+    bool completeAndSelected;
 };
 
 #endif
