@@ -23,7 +23,7 @@ bool caseInsensitiveLessThan(const QString &a, const QString &b)
 
 
 Editor::Editor(QWidget *parent)
-    : QTextEdit(parent),colorDialog(0)
+    : QTextEdit(parent),colorDialog(nullptr)
 {
     action = new QAction(this);
     action->setCheckable(true);
@@ -152,10 +152,10 @@ void Editor::setColor()
 void Editor::updateColor(const QColor &color)
 {
     this->setTextColor(color);
-    //    updateColorSwatchSignal(); //todo сделать сигналом
+    //    updateColorSwatchSignal(); //TODO сделать сигналом
 }
 
-//void Editor::updateColorSwatch()//todo перенести в mainwin.cpp|hpp
+//void Editor::updateColorSwatch()//TODO перенести в mainwin.cpp|hpp
 //{
 
 //}
@@ -247,7 +247,7 @@ void Editor::mousePressEvent(QMouseEvent *event)
         cursor.removeSelectedText();
         setTextCursor(cursor);
     }
-    //    QPlainTextEdit::mousePressEvent(event); todo
+    //    QPlainTextEdit::mousePressEvent(event); // TODO
     QTextEdit::mousePressEvent(event);
 }
 
@@ -266,7 +266,7 @@ void Editor::keyPressEvent(QKeyEvent *event)
         default: completer->popup()->hide(); break;
         }
     }
-    //    QPlainTextEdit::keyPressEvent(event); todo
+    //    QPlainTextEdit::keyPressEvent(event); TODO
     QTextEdit::keyPressEvent(event);
 }
 

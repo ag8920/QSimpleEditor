@@ -42,7 +42,7 @@ public slots:
     void alignCenter();
     void alignJustify();
 
-//    void cursorPositionChanged(); //todo перенсти в mainwin.cpp|hpp
+//    void cursorPositionChanged(); //TODO перенсти в mainwin.cpp|hpp
 private slots:
     void insertCompletion(const QString &completion,
                           bool singleWord=false);
@@ -60,7 +60,7 @@ private:
     void performCompletion(const QString &completionPrefix);
     void populateModel(const QString &completionPrefix);
     bool handledCompletedAndSelected(QKeyEvent *event);
-//    void updateColorSwatch(); //todo перенсти в mainwin.cpp|hpp
+//    void updateColorSwatch(); //TODO перенсти в mainwin.cpp|hpp
 
     QString curFile;
     bool isUntitled;

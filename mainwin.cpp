@@ -108,7 +108,7 @@ void MainWindow::setSizeFont(double size)
     }
 }
 
-void MainWindow::currentCharFormatChanged(const QTextCharFormat &format)//todo не работает
+void MainWindow::currentCharFormatChanged(const QTextCharFormat &format)//TODO: не работает
 {
     fontComboBox->setCurrentFont(format.font());
     fontSizeSpinBox->setValue(format.fontPointSize());
