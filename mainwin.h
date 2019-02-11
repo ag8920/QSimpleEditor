@@ -4,8 +4,10 @@
 
 
 #include <QMainWindow>
-#include <Qsci/qsciscintilla.h>
-#include <Qsci/qscilexercpp.h>
+//#include <Qsci/qsciscintilla.h>
+//#include <Qsci/qscilexercpp.h>
+
+#define CENTER_BOLD 50
 
 class QAction;
 class QActionGroup;
@@ -14,6 +16,9 @@ class QMdiArea;
 class QMenu;
 class QToolBar;
 class Editor;
+class QFontComboBox;
+class QDoubleSpinBox;
+class QTextCharFormat;
 
 class MainWindow : public QMainWindow
 {
@@ -40,11 +45,23 @@ private slots:
     void updateActions();
     void loadFiles();
 
+    void setLeftAlign();
+    void setRightAlign();
+    void setCenterAlign();
+    void setJustifyAlign();
+
+    void setBoldStyle();
+    void setFont(const QFont &font);
+    void setSizeFont(double size);
+
+    void currentCharFormatChanged(const QTextCharFormat &format);
+    void cursorPositionChanged();
 private:
     void createActions();
     void createMenus();
     void createToolBars();
     void createStatusBar();
+    void createConnections();
     void addEditor(Editor *editor);
     Editor *activeEditor();
 
@@ -81,7 +98,24 @@ private:
     QAction *aboutAction;
     QAction *aboutQtAction;
 
-    QsciScintilla *txtedit;
+    QToolBar *fonToolBar;
+    QAction *boldAction;
+    QAction *italicAction;
+    QToolBar *fontToolbar;
+    QAction *colorAction;
+
+    QAction *alignLeftAction;
+    QAction *alignRightAction;
+    QAction *alignCenterAction;
+    QAction *alignJustifyAction;
+    QToolBar *alignmentToolbar;
+
+    QFontComboBox *fontComboBox;
+    QDoubleSpinBox *fontSizeSpinBox;
+
+
+
+//    QsciScintilla *txtedit;
 };
 
 #endif // MAINWIN_H

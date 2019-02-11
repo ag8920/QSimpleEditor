@@ -13,6 +13,10 @@
 #include <QLabel>
 #include <QDockWidget>
 #include <QCalendarWidget>
+#include <QFontComboBox>
+#include <QDoubleSpinBox>
+#include <QTextCharFormat>
+
 #include "mainwin.h"
 #include "editor.h"
 
@@ -31,6 +35,7 @@ MainWindow::MainWindow()
     createMenus();
     createToolBars();
     createStatusBar();
+    createConnections();
     QCalendarWidget *e=new QCalendarWidget;
     createDockWin(e,"Calendar",Qt::RightDockWidgetArea);
 
@@ -52,6 +57,88 @@ void MainWindow::loadFiles()
     }
     mdiArea->activateNextSubWindow();
 }
+
+void MainWindow::setLeftAlign()
+{
+    if(activeEditor())
+        activeEditor()->alignLeft();
+}
+
+void MainWindow::setRightAlign()
+{
+    if(activeEditor())
+        activeEditor()->alignRight();
+}
+
+void MainWindow::setCenterAlign()
+{
+    if(activeEditor())
+        activeEditor()->alignCenter();
+}
+
+void MainWindow::setJustifyAlign()
+{
+    if(activeEditor())
+        activeEditor()->alignJustify();
+}
+
+void MainWindow::setBoldStyle()
+{
+    if(activeEditor()){
+        if(activeEditor()->fontWeight()<=CENTER_BOLD){
+            activeEditor()->setBold(true);
+        }
+        else if(activeEditor()->fontWeight()>=CENTER_BOLD) {
+            activeEditor()->setBold(false);
+        }
+    }
+}
+
+void MainWindow::setFont(const QFont &font)
+{
+    if(activeEditor()){
+        activeEditor()->setFont(font);
+    }
+}
+
+void MainWindow::setSizeFont(double size)
+{
+    if(activeEditor()){
+        activeEditor()->setFontSize(size);
+    }
+}
+
+void MainWindow::currentCharFormatChanged(const QTextCharFormat &format)//TODO: не работает
+{
+    fontComboBox->setCurrentFont(format.font());
+    fontSizeSpinBox->setValue(format.fontPointSize());
+
+}
+
+void MainWindow::cursorPositionChanged()
+{
+    if(activeEditor()){
+        QTextCursor cursor=activeEditor()->textCursor();
+        QTextBlockFormat format=cursor.blockFormat();
+        switch (format.alignment()) {
+        case Qt::AlignLeft:
+            alignLeftAction->setChecked(true);
+            break;
+        case Qt::AlignRight:
+            alignRightAction->setChecked(true);
+            break;
+        case Qt::AlignCenter:
+            alignCenterAction->setChecked(true);
+            break;
+        case Qt::AlignJustify:
+            alignJustifyAction->setChecked(true);
+            break;
+        default:
+            break;
+        }
+    }
+}
+
 
 void MainWindow::newFile()
 {
@@ -117,16 +204,16 @@ void MainWindow::paste()
 void MainWindow::about()
 {
     QMessageBox::about(this, tr("About Simple Editor"),
-            tr("<h2>Editor 0.1</h2>"
-               "<p>Copyright &copy; 2018"
-               "<p>Simple Editor is a small application that demonstrates "));
+                       tr("<h2>Editor 0.1</h2>"
+                          "<p>Copyright &copy; 2018"
+                          "<p>Simple Editor is a small application that demonstrates "));
 }
 
 void MainWindow::updateActions()
 {
     bool hasEditor = (activeEditor() != nullptr);
     bool hasSelection = activeEditor()
-                        && activeEditor()->textCursor().hasSelection();
+            && activeEditor()->textCursor().hasSelection();
 
     saveAction->setEnabled(hasEditor);
     saveAsAction->setEnabled(hasEditor);
@@ -241,6 +328,28 @@ void MainWindow::createActions()
     connect(aboutQtAction, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 
     windowActionGroup = new QActionGroup(this);
+
+
+    alignLeftAction=new QAction(tr("align Left"),this);
+    alignLeftAction->setStatusTip(tr("Text alignment in left"));
+    alignLeftAction->setIcon(QIcon(":/icons/alignLeft.png"));
+
+    alignRightAction=new QAction(tr("align Right"),this);
+    alignRightAction->setStatusTip(tr("Text alignment in rigt"));
+    alignRightAction->setIcon(QIcon(":/icons/alignRight.png"));
+
+    alignCenterAction=new QAction(tr("align Center"),this);
+    alignCenterAction->setStatusTip(tr("Text alignment in center"));
+    alignCenterAction->setIcon(QIcon(":/icons/alignCenter"));
+
+    alignJustifyAction=new QAction(tr("align Justify"),this);
+    alignJustifyAction->setStatusTip(tr("Text alignment in justify"));
+    alignJustifyAction->setIcon(QIcon(":/icons/alignJustify"));
+
+    boldAction=new QAction(tr("bold style"),this);
+    boldAction->setStatusTip(tr("to establish a bold print"));
+    boldAction->setIcon(QIcon(":/icons/bold.png"));
+    boldAction->setShortcut(tr("Ctrl+B"));
 }
 
 void MainWindow::createMenus()
@@ -257,6 +366,13 @@ void MainWindow::createMenus()
     editMenu->addAction(cutAction);
     editMenu->addAction(copyAction);
     editMenu->addAction(pasteAction);
+    editMenu->addSeparator();
+    editMenu->addAction(boldAction);
+    editMenu->addSeparator();
+    editMenu->addAction(alignLeftAction);
+    editMenu->addAction(alignCenterAction);
+    editMenu->addAction(alignJustifyAction);
+    editMenu->addAction(alignRightAction);
 
     windowMenu = menuBar()->addMenu(tr("&Window"));
     windowMenu->addAction(closeAction);
@@ -280,6 +396,7 @@ void MainWindow::createMenus()
 
 void MainWindow::createToolBars()
 {
+    QFont font("Times New Roman",14);
     fileToolBar = addToolBar(tr("File"));
     fileToolBar->addAction(newAction);
     fileToolBar->addAction(openAction);
@@ -289,12 +406,53 @@ void MainWindow::createToolBars()
     editToolBar->addAction(cutAction);
     editToolBar->addAction(copyAction);
     editToolBar->addAction(pasteAction);
+
+    fontToolbar=addToolBar(tr("Font"));
+    fontToolbar->addAction(boldAction);
+
+    fontToolbar->addWidget(new QLabel("Font:"));
+    fontComboBox=new QFontComboBox;
+    fontComboBox->setCurrentFont(font);
+    fontToolbar->addWidget(fontComboBox);
+    fontSizeSpinBox=new QDoubleSpinBox;
+    fontSizeSpinBox->setDecimals(0);
+    fontSizeSpinBox->setAlignment(Qt::AlignRight|Qt::AlignCenter);
+    fontSizeSpinBox->setRange(6,280);
+    fontSizeSpinBox->setValue(font.pointSize());
+    fontToolbar->addWidget(new QLabel("Size:"));
+    fontToolbar->addWidget(fontSizeSpinBox);
+
+
+    alignmentToolbar=addToolBar(tr("Alignment"));
+    alignmentToolbar->addAction(alignLeftAction);
+    alignmentToolbar->addAction(alignCenterAction);
+    alignmentToolbar->addAction(alignJustifyAction);
+    alignmentToolbar->addAction(alignRightAction);
+
 }
 
 void MainWindow::createStatusBar()
 {
     readyLabel = new QLabel(tr(" Ready"));
     statusBar()->addWidget(readyLabel, 1);
+}
+
+void MainWindow::createConnections()
+{
+    connect(alignRightAction,&QAction::triggered,
+            this,&MainWindow::setRightAlign);
+    connect(alignLeftAction,&QAction::triggered,
+            this,&MainWindow::setLeftAlign);
+    connect(alignCenterAction,&QAction::triggered,
+            this,&MainWindow::setCenterAlign);
+    connect(alignJustifyAction,&QAction::triggered,
+            this,&MainWindow::setJustifyAlign);
+    connect(boldAction,&QAction::triggered,
+            this,&MainWindow::setBoldStyle);
+    connect(fontComboBox,&QFontComboBox::currentFontChanged,
+            this,&MainWindow::setFont);
+    connect(fontSizeSpinBox,SIGNAL(valueChanged(double)),
+            this,SLOT(setSizeFont(double)));
 }
 
 void MainWindow::addEditor(Editor *editor)
@@ -304,6 +462,13 @@ void MainWindow::addEditor(Editor *editor)
     connect(editor, SIGNAL(copyAvailable(bool)),
             copyAction, SLOT(setEnabled(bool)));
 
+    connect(editor,SIGNAL(cursorPositionChanged()),
+            this, SLOT(cursorPositionChanged()));
+
+//    connect(editor, SIGNAL(currentCharFormatChanged(
+//                                const QTextCharFormat&)),
+//               this, SLOT(currentCharFormatChanged(
+//                          const QTextCharFormat&)));
     QMdiSubWindow *subWindow = mdiArea->addSubWindow(editor);
     windowMenu->addAction(editor->windowMenuAction());
     windowActionGroup->addAction(editor->windowMenuAction());
@@ -313,8 +478,9 @@ void MainWindow::addEditor(Editor *editor)
 Editor *MainWindow::activeEditor()
 {
     QMdiSubWindow *subWindow = mdiArea->activeSubWindow();
-    if (subWindow)
+    if (subWindow){
         return qobject_cast<Editor *>(subWindow->widget());
+    }
     return nullptr;
 }
 
@@ -323,11 +489,11 @@ void MainWindow::createDockWin(QWidget *w,const QString nameWindow,Qt::DockWidge
     QDockWidget *dock=new QDockWidget(nameWindow,this);
     //dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
-//    QWidget *e=new Qwidget(dock);
+    //    QWidget *e=new Qwidget(dock);
 
     dock->setWidget(w);
     dock->hide();
-//    dock->setFeatures(QDockWidget::NoDockWidgetFeatures);//прикрепленный виджет не может быть закрыт, перемещен
+    //    dock->setFeatures(QDockWidget::NoDockWidgetFeatures);//прикрепленный виджет не может быть закрыт, перемещен
     addDockWidget(area,dock);
 
 

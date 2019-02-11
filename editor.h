@@ -3,6 +3,10 @@
 
 #include <QTextEdit>
 
+class QColorDialog;
+class QCompleter;
+class QStringListModel;
+
 class Editor : public QTextEdit
 {
     Q_OBJECT
@@ -22,11 +26,30 @@ public:
 
 protected:
     void closeEvent(QCloseEvent *event);
-
-private slots:
+    void mousePressEvent(QMouseEvent *event);
+    void keyPressEvent(QKeyEvent *event);
+public slots:
     void documentWasModified();
+    void setBold(bool on);
+    void setColor();
+    void updateColor(const QColor &color);
+    void setFontSize(double points);
+    void setFont(const QFont &font);
+//    void currentCharFormatChanged(const QTextCharFormat &format);
+
+    void alignLeft();
+    void alignRight();
+    void alignCenter();
+    void alignJustify();
+
+//    void cursorPositionChanged(); //TODO перенсти в mainwin.cpp|hpp
+private slots:
+    void insertCompletion(const QString &completion,
+                          bool singleWord=false);
+    void performCompletion();
 
 private:
+    void createConnections();
     bool okToContinue();
     bool saveFile(const QString &fileName);
     void setCurrentFile(const QString &fileName);
@@ -34,9 +57,21 @@ private:
     bool writeFile(const QString &fileName);
     QString strippedName(const QString &fullFileName);
 
+    void performCompletion(const QString &completionPrefix);
+    void populateModel(const QString &completionPrefix);
+    bool handledCompletedAndSelected(QKeyEvent *event);
+//    void updateColorSwatch(); //TODO перенсти в mainwin.cpp|hpp
+
     QString curFile;
     bool isUntitled;
     QAction *action;
+
+    QCompleter *completer;
+    QStringListModel *model;
+
+    QColorDialog *colorDialog;
+
+    bool completeAndSelected;
 };
 
 #endif

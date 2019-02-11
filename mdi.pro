@@ -29,10 +29,12 @@ CONFIG(debug, debug|release) {
 } else {
     DESTDIR = $$OUT_PWD/release
 }
+win32: {
 CONFIG(debug, debug|release) {
 QMAKE_POST_LINK = $$(QTDIR)/bin/windeployqt $$OUT_PWD/debug
 } else{
 QMAKE_POST_LINK = $$(QTDIR)/bin/windeployqt $$OUT_PWD/release
+}
 }
 
 MOC_DIR=moc
@@ -61,3 +63,6 @@ RESOURCES += \
 #LIBS += -lqscintilla2
 
 win32: LIBS += -lqscintilla2_qt5
+
+DISTFILES += \
+    TODO_list
